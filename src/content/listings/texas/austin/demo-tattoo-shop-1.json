@@ -1,0 +1,50 @@
+{
+  "status": "published",
+  "tier": "verified",
+  "demo": true,
+  "sameAs": [],
+  "source": "Demo data, not a real business",
+  "lastUpdated": "2026-09-28",
+  "name": "Demo Tattoo Shop 1",
+  "slug": "demo-tattoo-shop-1",
+  "verifiedUntil": "2027-09-28",
+  "address": {
+    "street": "100 Example Street",
+    "city": "Austin",
+    "region": "TX",
+    "postalCode": "78701"
+  },
+  "lat": 30.2672,
+  "lng": -97.7431,
+  "phone": "(512) 555-0101",
+  "website": "https://example.com/",
+  "hours": {
+    "mon": "closed",
+    "tue": "12:00-20:00",
+    "wed": "12:00-20:00",
+    "thu": "12:00-20:00",
+    "fri": "12:00-22:00",
+    "sat": "11:00-22:00",
+    "sun": "12:00-18:00"
+  },
+  "summary": "Demo Tattoo Shop 1 is a placeholder listing used to preview the site. It is not a real business.",
+  "description": "This is demo owner text. It shows where a Verified shop’s own description appears.",
+  "bookingUrl": "https://example.com/book",
+  "attributes": {
+    "styles": [
+      "fine-line",
+      "traditional",
+      "blackwork"
+    ],
+    "services": [
+      "walk-ins",
+      "piercing",
+      "custom-designs"
+    ],
+    "minimumCharge": 100,
+    "depositRequired": true,
+    "minAge": 18,
+    "wheelchairAccessible": true,
+    "cardsAccepted": true
+  }
+}

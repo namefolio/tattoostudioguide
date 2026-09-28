@@ -1,0 +1,28 @@
+{
+  "status": "published",
+  "tier": "basic",
+  "demo": true,
+  "sameAs": [],
+  "source": "Demo data, not a real business",
+  "lastUpdated": "2026-09-28",
+  "name": "Demo Tattoo Shop 3",
+  "slug": "demo-tattoo-shop-3",
+  "address": {
+    "street": "300 Example Road",
+    "city": "Austin",
+    "region": "TX",
+    "postalCode": "78704"
+  },
+  "lat": 30.245,
+  "lng": -97.76,
+  "summary": "Demo Tattoo Shop 3 is a placeholder listing used to preview the site. It is not a real business.",
+  "attributes": {
+    "styles": [
+      "fine-line",
+      "japanese"
+    ],
+    "services": [
+      "walk-ins"
+    ]
+  }
+}
