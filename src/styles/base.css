@@ -40,6 +40,7 @@ main { padding-bottom: 3rem; }
 
 .crumbs ol { list-style: none; display: flex; flex-wrap: wrap; gap: 0 0.5rem; padding: 0; margin: 1rem 0 0; font-size: 1rem; }
 .crumbs li + li::before { content: '/'; margin-right: 0.5rem; color: var(--muted); }
+.crumbs li { display: flex; align-items: center; min-height: 44px; }
 .crumbs a { display: inline-flex; min-height: 44px; align-items: center; }
 
 .grid { display: grid; gap: var(--gap); grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); padding: 0; list-style: none; }

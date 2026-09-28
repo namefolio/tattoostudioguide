@@ -23,7 +23,6 @@ const hubUrl = `/${site.hub}/`;
   <p class="lead">{intro}</p>
   <h2>Cities</h2>
   <ul class="tiles">{region.cities.map((c) => <li><a href={c.url}>{c.name} ({c.listings.length})</a></li>)}</ul>
-  <h2>All {site.entity.many} in {region.name}</h2>
-  <ListingList listings={region.listings} showCity />
+  <ListingList listings={region.listings} heading={`All ${site.entity.many} in ${region.name}`} showCity />
   <BestFor listings={region.listings} place={region.name} />
 </Base>

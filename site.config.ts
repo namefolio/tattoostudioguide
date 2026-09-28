@@ -128,7 +128,7 @@ export const site = {
     const s = (l.attributes.styles as string[] | undefined) ?? [];
     if (has(l, 'services', 'walk-ins')) faqs.push({ q: `Does ${l.name} take walk-ins?`, a: `Yes. ${l.name} lists walk-ins. Availability depends on the artists on shift, so calling ahead helps.` });
     else if (l.attributes.appointmentOnly === true) faqs.push({ q: `Does ${l.name} take walk-ins?`, a: `No. ${l.name} works by appointment only.` });
-    if (s.length) faqs.push({ q: `What styles does ${l.name} tattoo?`, a: `${l.name} lists ${s.map((k) => styles[k]).join(', ').toLowerCase()}.` });
+    if (s.length) faqs.push({ q: `What styles does ${l.name} tattoo?`, a: `${l.name} lists these styles: ${s.map((k) => styles[k]).join(', ')}.` });
     if (typeof l.attributes.minimumCharge === 'number') faqs.push({ q: `What is the shop minimum at ${l.name}?`, a: `${l.name} publishes a shop minimum of $${l.attributes.minimumCharge}. The final price depends on size, placement and detail.` });
     if (l.hours?.sun) faqs.push({ q: `Is ${l.name} open on Sundays?`, a: opensSunday(l) ? `Yes, ${l.hours.sun.replace(/-/g, ' to ')} on Sundays.` : `No, ${l.name} is closed on Sundays.` });
     if (typeof l.attributes.minAge === 'number') faqs.push({ q: `How old do you have to be to get tattooed at ${l.name}?`, a: `${l.name} lists a minimum age of ${l.attributes.minAge}. Bring a valid photo ID.` });
