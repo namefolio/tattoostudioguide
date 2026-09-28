@@ -20,14 +20,16 @@ For the form locally, copy `.dev.vars.example` to `.dev.vars` (Turnstile test ke
 
 ## Deploy
 
-`.github/workflows/deploy.yml` checks, tests, builds and runs `wrangler deploy` on every push to `main` and once a day (so expired Verified listings drop to Basic). It needs repo secrets `CLOUDFLARE_API_TOKEN` (Workers edit permission) and `CLOUDFLARE_ACCOUNT_ID`. Set the repo variable `INCLUDE_DEMO=1` while there is no real data. Manual: `npm run deploy` (or `npm run deploy:demo`).
+Pushing to `main` deploys through Cloudflare **Workers Builds** (Worker `tattoostudioguide` > Settings > Builds, connected to this repo). Build command: `npm run build:demo` while only demo listings exist, then `npm run build`. Deploy command: `npx wrangler deploy`. No Cloudflare secrets are needed in GitHub. Manual: `npm run deploy` with `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` set.
 
-One-time Cloudflare setup:
-1. Add the custom domain to the Worker (Workers → tattoostudioguide → Settings → Domains).
-2. Enable Email Routing on the domain and verify the submissions inbox as a destination address; put that address in `wrangler.jsonc` (`send_email.destination_address` and `SUBMISSIONS_TO`).
-3. Create a Turnstile widget for the domain; put the site key in `wrangler.jsonc` (`TURNSTILE_SITE_KEY`) and run `npx wrangler secret put TURNSTILE_SECRET`. Without the secret the form fails closed.
-4. Set the payment link's success URL (e.g. back to `/listing-plans/`).
-5. In AI Crawl Control, make sure AI crawlers are allowed; optionally enable Markdown for Agents.
+`.github/workflows/daily-rebuild.yml` calls a Workers Builds deploy hook once a day, so an expired `verifiedUntil` drops to Basic without a push. Create the hook (Worker > Settings > Builds > Deploy Hooks) and save its URL as the repo secret `DEPLOY_HOOK_URL`; until then the workflow skips.
+
+One-time dashboard steps:
+1. **Custom domain:** Worker > Settings > Domains & Routes > add the apex and `www`.
+2. **Email Routing:** enable it on the zone and verify `hello@namefolio.co` as a destination. The `send_email` binding only delivers to verified addresses; the sender `submissions@tattoostudioguide.com` must be on the zone.
+3. **Turnstile:** create a widget for the domain; put the site key in `wrangler.jsonc` (`TURNSTILE_SITE_KEY`) and run `npx wrangler secret put TURNSTILE_SECRET`. Without the secret the form fails closed.
+4. **Payment:** Verified is invoiced by email (`mailto:hello@namefolio.co`); if you switch to a Stripe Payment Link, set its success URL to `/listing-plans/`.
+5. **AI Crawl Control:** make sure AI crawlers are allowed; optionally enable Markdown for Agents.
 
 ## Start the next domain from this repo
 

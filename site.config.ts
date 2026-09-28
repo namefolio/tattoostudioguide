@@ -3,16 +3,16 @@
 import { US_STATES } from './src/data/us-states';
 import type { AttributeDef, BestFor, Faq, ListingData, Taxonomy } from './src/lib/types';
 
-// ---- PLACEHOLDERS: replace before launch (npm run check warns while any remain) ----
+// ---- Launch values (same as Ben's other directory sites; npm run check warns if any PLACEHOLDER remains) ----
 export const PLACEHOLDERS = {
   /** Email or URL for the home-page "domain for sale" banner. */
-  forSaleContact: 'mailto:PLACEHOLDER-for-sale@example.com',
+  forSaleContact: 'https://www.domainmarket.com/',
   /** Inbox that receives "Add your business" emails (must be a verified Email Routing destination). */
-  submissionsEmail: 'PLACEHOLDER-submissions@example.com',
+  submissionsEmail: 'hello@namefolio.co',
   /** Price shown for Verified, e.g. "$49/year". */
-  verifiedPrice: '$PLACEHOLDER/year',
+  verifiedPrice: '$149 a year',
   /** Hosted checkout link (Stripe Payment Link) or a mailto: address if you invoice. */
-  verifiedPaymentLink: 'mailto:PLACEHOLDER-billing@example.com',
+  verifiedPaymentLink: 'mailto:hello@namefolio.co',
 };
 
 const styles: Record<string, string> = {
@@ -89,7 +89,7 @@ export const site = {
   tagline: 'Tattoo shops and studios across the US, by city and style.',
   owner: 'TattooStudioGuide',
   /** Sender address for form emails; must be on the domain with Email Routing enabled. */
-  formFromEmail: 'forms@tattoostudioguide.com',
+  formFromEmail: 'submissions@tattoostudioguide.com',
 
   entity: { one: 'tattoo shop', many: 'tattoo shops', One: 'Tattoo shop', Many: 'Tattoo shops', ManyTitle: 'Tattoo Shops' },
   hub: 'tattoo-shops',

@@ -31,4 +31,4 @@ Set `tier: "basic"` and remove `verifiedUntil`, `description` and `bookingUrl`. 
 npm run check && npm test && npm run build
 git add -A && git commit -m "Listings: <what changed>" && git push origin main
 ```
-Pushing to `main` deploys the site.
+Pushing to `main` deploys the site (Workers Builds).
