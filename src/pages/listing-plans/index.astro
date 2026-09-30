@@ -14,8 +14,11 @@ const e = site.entity;
   crumbs={[{ name: 'Home', url: '/' }, { name: 'Listing plans', url: '/listing-plans/' }]}
   jsonld={faqPage(plansFaqs)}
 >
-  <h1>List your {e.one}: Basic or Verified</h1>
-  <p class="lead">{plansIntro}</p>
+  <header class="page-head">
+    <h1>List your {e.one}: Basic or Verified</h1>
+    <p class="lead">{plansIntro}</p>
+  </header>
+  <div class="prose">
 
   <div class="plans">
     <section class="plan" aria-labelledby="plan-basic">
@@ -39,4 +42,5 @@ const e = site.entity;
   </div>
 
   <Faqs faqs={plansFaqs} />
+  </div>
 </Base>

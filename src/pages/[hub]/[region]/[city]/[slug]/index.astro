@@ -1,67 +1,145 @@
 ---
 import Base from '../../../../../layouts/Base.astro';
 import Faqs from '../../../../../components/Faqs.astro';
+import ListingCard from '../../../../../components/ListingCard.astro';
+import VerifiedBadge from '../../../../../components/VerifiedBadge.astro';
+import Icon from '../../../../../components/Icon.astro';
 import { site } from '../../../../../../site.config';
 import { listingPaths } from '../../../../../lib/pages';
 import { business, faqPage } from '../../../../../lib/jsonld';
-import { factRows, fmtDate, hoursRows, mapsUrl, type City, type Region } from '../../../../../lib/core';
-import type { Faq, Listing } from '../../../../../lib/types';
+import { DAY_LABELS, factRows, fmtDate, isoDate, mapsUrl, type City, type Region } from '../../../../../lib/core';
+import { termPages } from '../../../../../lib/data';
+import { initials, primaryLabel, primaryTerms, termHref } from '../../../../../lib/discovery';
+import { photos } from '../../../../../lib/images';
+import { verifiedLine } from '../../../../../lib/copy';
+import { DAYS, type Faq, type Listing } from '../../../../../lib/types';
 
 export const getStaticPaths = listingPaths;
 const { listing: l, region, city, nearby, faqs } = Astro.props as { listing: Listing; region: Region; city: City; nearby: Listing[]; faqs: Faq[] };
 const verified = l.effectiveTier === 'verified';
+const u = site.ui;
 const update = `/add-your-business/?listing=${l.slug}`;
+const pageUrls = new Set((await termPages()).map((t) => t.url));
+const terms = primaryTerms(l);
+const primaryAttr = site.taxonomies.find((t) => t.segment === site.primaryTaxonomy)?.attribute;
+const primaryDef = site.attributes.find((a) => a.key === primaryAttr);
+// Good to know: only facts the listing actually has.
+const goodToKnow = factRows(l).filter(([k, v]) => v !== 'Not listed' && k !== primaryDef?.label);
+const hours = l.hours ? DAYS.filter((d) => l.hours?.[d]).map((d) => [DAY_LABELS[d], l.hours![d] === 'closed' ? 'Closed' : l.hours![d]!.split(',').map((r) => r.replace('-', '–')).join(', ')]) : [];
+const pics = await photos(l, [480, 800, 1200, 1600], 5);
+const host = (url: string) => new URL(url).hostname.replace(/^www\./, '');
+const tel = l.phone ? `tel:${l.phone.replace(/[^+\d]/g, '')}` : undefined;
 ---
 <Base
   title={site.titles.listing(l.name, l.address.city, region.code)}
   description={site.titles.listingDescription(l.name, l.address.city, region.code, site.cardFacts(l).slice(0, 3))}
   path={l.url}
+  bare
+  image={pics[0]?.src}
   crumbs={[{ name: 'Home', url: '/' }, { name: region.name, url: region.url }, { name: city.name, url: city.url }, { name: l.name, url: l.url }]}
-  jsonld={[business(l), ...faqPage(faqs)]}
+  jsonld={[business(l, pics[0]?.src), ...faqPage(faqs)]}
 >
-  {verified && <p class="badge">Verified</p>}
-  <h1>{l.name}</h1>
-  <p class="lead">{l.summary}</p>
-  {verified && l.description && (
-    <section aria-labelledby="owner">
-      <h2 id="owner">From the owner</h2>
-      <p>{l.description}</p>
-    </section>
-  )}
+  <div class="wrap">
+    <header class="profile-head">
+      <span class="kicker">{site.entity.One} · {city.name}, {region.code}</span>
+      <h1>{l.name}</h1>
+      <p class="profile-loc">{l.address.street}, {l.address.city}, {l.address.region} {l.address.postalCode}</p>
+      {verified && <div class="profile-tags"><VerifiedBadge class="badge" tag="span" /><a class="small" href="#information">What this means</a></div>}
+    </header>
 
-  <h2>Details</h2>
-  <table>
-    <tbody>
-      <tr><th scope="row">Address</th><td>{l.address.street}, {l.address.city}, {l.address.region} {l.address.postalCode}</td></tr>
-      <tr><th scope="row">Phone</th><td>{l.phone ? <a href={`tel:${l.phone.replace(/[^+\d]/g, '')}`}>{l.phone}</a> : 'Not listed'}</td></tr>
-      <tr><th scope="row">Website</th><td>{l.website ? <a href={l.website} rel="nofollow">{new URL(l.website).hostname.replace(/^www\./, '')}</a> : 'Not listed'}</td></tr>
-      {verified && l.bookingUrl && <tr><th scope="row">Booking</th><td><a href={l.bookingUrl} rel="nofollow">Book with {l.name}</a></td></tr>}
-      {factRows(l).map(([k, v]) => <tr><th scope="row">{k}</th><td>{v}</td></tr>)}
-      <tr><th scope="row">Other links</th><td>{l.sameAs.length ? l.sameAs.map((u, i) => <>{i > 0 && ', '}<a href={u} rel="nofollow">{new URL(u).hostname.replace(/^www\./, '')}</a></>) : 'None listed'}</td></tr>
-    </tbody>
-  </table>
-  <p><a href={mapsUrl(l)} rel="nofollow">Open {l.name} in Google Maps</a></p>
+    {pics.length > 0 ? (
+      <div class:list={['gallery', { many: pics.length >= 3 }]}>
+        {pics.map((p, i) => (
+          <figure class:list={{ cover: i === 0 }}>
+            <img src={p.src} srcset={p.srcset} sizes={i === 0 ? '(min-width: 80rem) 76rem, 100vw' : '(min-width: 48em) 33vw, 100vw'} width={p.width} height={p.height} alt={p.alt} loading={i === 0 ? 'eager' : 'lazy'} fetchpriority={i === 0 ? 'high' : undefined} decoding="async" />
+          </figure>
+        ))}
+      </div>
+    ) : (
+      <div class="gallery-ph">
+        <div class="ph ph-lg" aria-hidden="true"><span>{initials(l.name)}</span></div>
+        <p class="ph-note">No photos yet</p>
+      </div>
+    )}
 
-  <h2>Opening hours</h2>
-  <table>
-    <tbody>{hoursRows(l).map(([d, h]) => <tr><th scope="row">{d}</th><td>{h}</td></tr>)}</tbody>
-  </table>
-  <p class="muted">Hours change. Check with the {site.entity.one} before you travel.</p>
+    <div class="profile">
+      <div class="profile-intro">
+        {terms.length > 0 && (
+          <section aria-labelledby="styles">
+            <h2 id="styles">{u.Terms}</h2>
+            <ul class="chips">{terms.map((t) => <li><a class="tag" href={termHref(t, pageUrls)}>{primaryLabel(t)}</a></li>)}</ul>
+          </section>
+        )}
+        <section class="about" aria-labelledby="about">
+          <h2 id="about">About</h2>
+          <p>{l.summary}</p>
+        </section>
+        {verified && l.description && (
+          <section aria-labelledby="owner">
+            <h2 id="owner">From the owner</h2>
+            <p>{l.description}</p>
+          </section>
+        )}
+      </div>
+      <div class="profile-details">
+        {goodToKnow.length > 0 && (
+          <section aria-labelledby="good">
+            <h2 id="good">Good to know</h2>
+            <dl class="facts">{goodToKnow.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
+            <p class="small muted">Only details the {u.one} has published are shown.</p>
+          </section>
+        )}
+        <Faqs faqs={faqs} />
+      </div>
 
-  <Faqs faqs={faqs} />
+      <aside aria-label={`Visiting ${l.name}`}>
+        <section class="panel" aria-labelledby="visit">
+          <h2 id="visit">Visit</h2>
+          <dl class="facts">
+            <div><dt>Address</dt><dd>{l.address.street}<br />{l.address.city}, {l.address.region} {l.address.postalCode}<br /><a href={mapsUrl(l)} rel="nofollow">Open in Google Maps</a></dd></div>
+            {l.phone && <div><dt>Phone</dt><dd><a href={tel}>{l.phone}</a></dd></div>}
+            {l.website && <div><dt>Website</dt><dd><a href={l.website} rel="nofollow">{host(l.website)}</a></dd></div>}
+            {l.sameAs.length > 0 && <div><dt>Elsewhere</dt><dd>{l.sameAs.map((s, i) => <>{i > 0 && ', '}<a href={s} rel="nofollow">{host(s)}</a></>)}</dd></div>}
+          </dl>
+          {(verified && l.bookingUrl) || tel ? (
+            <div class="btns">
+              {verified && l.bookingUrl && <a class="btn btn-primary" href={l.bookingUrl} rel="nofollow">Book with {l.name}</a>}
+              {tel && <a class:list={['btn', verified && l.bookingUrl ? 'btn-secondary' : 'btn-primary']} href={tel}>Call {l.phone}</a>}
+            </div>
+          ) : null}
+        </section>
 
-  {nearby.length > 0 && (
-    <section aria-labelledby="nearby">
-      <h2 id="nearby">Nearby {site.entity.many}</h2>
-      <ul>{nearby.map((n) => <li><a href={n.url}>{n.name}</a>, {n.address.city}</li>)}</ul>
-      <p><a href={city.url}>All {site.entity.many} in {city.name}</a></p>
-    </section>
-  )}
+        {hours.length > 0 && (
+          <section class="panel" aria-labelledby="hours">
+            <h2 id="hours">Opening hours</h2>
+            <table class="hours"><tbody>{hours.map(([d, h]) => <tr><th scope="row">{d}</th><td>{h}</td></tr>)}</tbody></table>
+            <p class="small muted">Hours change. Check with the {u.one} before you travel.</p>
+          </section>
+        )}
 
-  <p class="muted">Last updated {fmtDate(l.lastUpdated)}.</p>
-  {verified ? (
-    <p>Verified: details confirmed by the owner. <a href={update}>Update this listing</a></p>
-  ) : (
-    <p>Is this your business? <a href={update}>Get it Verified or send a correction</a></p>
-  )}
+        <section class="panel" aria-labelledby="information-h" id="information">
+          <h2 id="information-h">Information</h2>
+          <p class="checked"><Icon name="check" /><span>Information last checked <time datetime={isoDate(l.lastUpdated)}>{fmtDate(l.lastUpdated)}</time>.</span></p>
+          {verified ? (
+            <p class="small">Verified: {verifiedLine} <a href="/listing-plans/">How Verified works</a></p>
+          ) : (
+            <p class="small muted">Basic listing, from public sources. The {u.one} has not confirmed these details with us.</p>
+          )}
+          <p class="small muted">Source: {l.source}</p>
+          <p class="small"><a href={update}>Report incorrect information</a></p>
+          {!verified && <p class="small">Is this your {u.one}? <a href={`${update}&tier=verified`}>Claim it or get Verified</a></p>}
+        </section>
+      </aside>
+    </div>
+
+    {nearby.length > 0 && (
+      <section class="section" aria-labelledby="nearby">
+        <div class="section-head">
+          <h2 id="nearby">Nearby {u.many}</h2>
+          <a class="more" href={city.url}>All in {city.name} →</a>
+        </div>
+        <ul class="grid">{nearby.map((n) => <ListingCard listing={n} showCity />)}</ul>
+      </section>
+    )}
+  </div>
 </Base>

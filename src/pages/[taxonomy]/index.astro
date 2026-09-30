@@ -1,0 +1,41 @@
+---
+// Index of the primary taxonomy (e.g. /styles/): every term, what it is, and how many listings have it.
+import Base from '../../layouts/Base.astro';
+import SearchBox from '../../components/SearchBox.astro';
+import { site } from '../../../site.config';
+import { loadAll, termPages } from '../../lib/data';
+import { allPrimaryTerms, primaryTerms, shortLabel, termHref } from '../../lib/discovery';
+
+export const getStaticPaths = () => [{ params: { taxonomy: site.primaryTaxonomy } }];
+const { listings } = await loadAll();
+const pageUrls = new Set((await termPages()).map((t) => t.url));
+const u = site.ui;
+const order = [...site.featuredTerms, ...allPrimaryTerms().map(([k]) => k).filter((k) => !site.featuredTerms.includes(k))];
+const terms = order.map((term) => ({ term, label: shortLabel(term), intro: site.termIntros[term], n: listings.filter((l) => primaryTerms(l).includes(term)).length, href: termHref(term, pageUrls) }));
+const path = `/${site.primaryTaxonomy}/`;
+---
+<Base title={site.titles.styles} description={site.titles.stylesDescription} path={path} crumbs={[{ name: 'Home', url: '/' }, { name: u.Terms, url: path }]}>
+  <header class="page-head">
+    <span class="kicker">Explore</span>
+    <h1>{u.termsH1}</h1>
+    <p class="lead">{u.termsLead}</p>
+  </header>
+  <ol class="style-index">
+    {terms.map((s, i) => (
+      <li>
+        <a href={s.href}>
+          <span class="num">{String(i + 1).padStart(2, '0')}</span>
+          <span class="name">{s.label}</span>
+          <span class="arrow" aria-hidden="true">→</span>
+          {s.intro && <span class="blurb">{s.intro}</span>}
+          <span class="count">{s.n > 0 ? `${s.n} ${s.n === 1 ? u.one : u.many}` : `No ${u.many} listed yet`}</span>
+        </a>
+      </li>
+    ))}
+  </ol>
+  <section class="section" aria-labelledby="find">
+    <h2 id="find">Search by {u.term} and city</h2>
+    <p class="muted">Try “fine line Austin” or “blackwork walk-ins”.</p>
+    <SearchBox id="styles-q" />
+  </section>
+</Base>

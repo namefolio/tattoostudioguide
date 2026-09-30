@@ -11,6 +11,9 @@ Listings are JSON files at `src/content/listings/{region}/{city}/{slug}.json` (r
 ## Edit
 Change the fields, set `lastUpdated` to today, and update `source` if the facts came from somewhere new.
 
+## Photos
+Only add photos the business published or sent with permission. Put the files in `src/assets/listings/{slug}/` and list them in the listing: `"images": [{ "file": "front.jpg", "alt": "Describe what the photo shows" }]` (first is the cover, up to 12). A missing file fails the build.
+
 ## Close or remove
 Closed for good: set `status: "closed"` (drops it from the site). Remove entirely: delete the file. Demo data: `npm run remove-demo`.
 

@@ -1,6 +1,6 @@
 ---
 import Base from '../../../../layouts/Base.astro';
-import ListingList from '../../../../components/ListingList.astro';
+import Results from '../../../../components/Results.astro';
 import BestFor from '../../../../components/BestFor.astro';
 import Faqs from '../../../../components/Faqs.astro';
 import { site } from '../../../../../site.config';
@@ -12,24 +12,33 @@ import type { Faq } from '../../../../lib/types';
 export const getStaticPaths = cityPaths;
 const { region, city, intro, nearbyCities, noindex, faqs } = Astro.props as { region: Region; city: City; intro: string; nearbyCities: City[]; noindex: boolean; faqs: Faq[] };
 const place = `${city.name}, ${region.code}`;
+const n = city.listings.length;
+const [lead, ...rest] = intro.split('\n\n');
 ---
 <Base
   title={site.titles.city(city.name, region.code)}
-  description={site.titles.cityDescription(city.name, region.code, city.listings.length)}
+  description={site.titles.cityDescription(city.name, region.code, n)}
   path={city.url}
   noindex={noindex}
+  bare
   crumbs={[{ name: 'Home', url: '/' }, { name: region.name, url: region.url }, { name: city.name, url: city.url }]}
   jsonld={[itemList(`${site.entity.Many} in ${place}`, city.listings), ...faqPage(faqs)]}
 >
-  <h1>{site.titles.cityH1(city.name, region.code)}</h1>
-  {intro.split('\n\n').map((p, i) => <p class:list={{ lead: i === 0 }}>{p}</p>)}
-  <ListingList listings={city.listings} heading={`${city.listings.length} ${city.listings.length === 1 ? site.entity.one : site.entity.many} in ${place}`} />
-  <BestFor listings={city.listings} place={place} />
-  <Faqs faqs={faqs} />
-  {nearbyCities.length > 0 && (
-    <section aria-labelledby="nearby">
-      <h2 id="nearby">Nearby cities</h2>
-      <ul class="inline-list">{nearbyCities.map((c) => <li><a href={c.url}>{site.entity.Many} in {c.name}</a></li>)}</ul>
-    </section>
-  )}
+  <div class="wrap">
+    <header class="page-head">
+      <span class="kicker">{region.name}</span>
+      <h1>{site.titles.cityH1(city.name, region.code)}</h1>
+      <p class="lead">{lead}</p>
+      {rest.length > 0 && <div class="intro">{rest.map((p) => <p>{p}</p>)}</div>}
+    </header>
+    <Results listings={city.listings} heading={`${site.ui.Many} in ${city.name}`} />
+    <BestFor listings={city.listings} place={place} />
+    <Faqs faqs={faqs} class="section" />
+    {nearbyCities.length > 0 && (
+      <section class="section" aria-labelledby="nearby">
+        <h2 id="nearby">Nearby cities</h2>
+        <ul class="city-list">{nearbyCities.map((c) => <li><a href={c.url}><span class="city">{c.name}</span><span class="meta">{c.listings.length} {c.listings.length === 1 ? site.ui.one : site.ui.many}</span></a></li>)}</ul>
+      </section>
+    )}
+  </div>
 </Base>

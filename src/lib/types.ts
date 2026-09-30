@@ -30,6 +30,7 @@ export interface ListingData {
   source: string;
   description?: string;
   bookingUrl?: string;
+  images?: ListingImage[];
 }
 
 /** A listing plus the facts the build derives from its folder and the date. */
@@ -54,6 +55,20 @@ export interface Taxonomy {
 export interface BestFor {
   label: string;
   test: (l: ListingData) => boolean;
+}
+
+/** A yes/no filter on results pages; `words` let search understand it too. */
+export interface ListingFilter {
+  key: string;
+  label: string;
+  words: string[];
+  test: (l: ListingData) => boolean;
+}
+
+/** A listing photo. `file` lives in src/assets/listings/{slug}/. */
+export interface ListingImage {
+  file: string;
+  alt: string;
 }
 
 export interface Faq {

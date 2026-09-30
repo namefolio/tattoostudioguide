@@ -1,6 +1,6 @@
 # TattooStudioGuide.com
 
-A static directory of US tattoo shops. Astro (static output, zero client JS) served by Cloudflare Workers static assets; one tiny Worker handles the "Add your business" form. Listings are JSON files, so an AI agent can maintain them: see [UPDATING.md](UPDATING.md). Research and design decisions: [docs/BRIEF.md](docs/BRIEF.md).
+A static directory of US tattoo shops. Astro (static output; one small vanilla script for search and filters) served by Cloudflare Workers static assets; one tiny Worker handles the "Add your business" form. Listings are JSON files, so an AI agent can maintain them: see [UPDATING.md](UPDATING.md). Research and design decisions: [docs/BRIEF.md](docs/BRIEF.md).
 
 ## Develop
 
@@ -17,6 +17,13 @@ npm run preview        # build:demo + wrangler dev (form works locally with .dev
 ```
 
 For the form locally, copy `.dev.vars.example` to `.dev.vars` (Turnstile test keys).
+
+## Pages and search
+
+- `/` home, `/studios/` search and browse (reads `/data/search.json`), `/styles/` style index, `/styles/{style}/` and `/services/{service}/` (3+ listings only), `/tattoo-shops/` cities by state, then state, city and listing pages.
+- `public/_redirects` sends `/cities/` to `/tattoo-shops/`.
+- Filters (walk-ins, appointment only, open Sundays, Verified, style) come from `site.config.ts` (`filters`, `primaryTaxonomy`) and only appear when a listing on the page matches.
+- Listing photos: add `"images": [{ "file": "front.jpg", "alt": "…" }]` to the listing and put the file in `src/assets/listings/{slug}/`. The build makes WebP sizes; without photos a hatched placeholder with the initials shows.
 
 ## Deploy
 
@@ -36,7 +43,8 @@ One-time dashboard steps:
 The engine (`src/lib`, `src/pages`, `src/components`, `src/styles`, `src/worker.ts`, `src/form.ts`) holds no niche words. For a new site change only:
 
 - `site.config.ts`: name, domain, placeholders, entity nouns, URL hub, schema.org type, credential check, regions, attributes, taxonomies, card facts, FAQs and title templates.
-- `src/theme.css`: palette, font and feel (and swap `public/fonts/`, `public/favicon.svg`).
+- `src/theme.css`: palette, fonts and feel (and swap `public/fonts/`, `public/favicon.svg`).
+- `site.config.ts` → `ui`, `primaryTaxonomy`, `featuredTerms`, `termIntros`, `termSynonyms`, `filters`: the discovery UI words, hero copy and search vocabulary.
 - `docs/BRIEF.md`: the new keyword research and design direction.
 - `src/content/listings/**`: the listing files (`npm run remove-demo`, then `npm run import-csv`).
 - `wrangler.jsonc` and `astro.config.mjs`: the Worker name and site URL.

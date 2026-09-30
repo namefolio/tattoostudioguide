@@ -52,11 +52,18 @@ Evidence (no search volumes were available; none are claimed):
 
 ## Design direction
 
-- **Home layout: location-led.** Order: H1 + one line → states with listings (city links under each) → "Browse by style" tiles → "Walk-in shops" line → how listings work (Basic / Verified, one paragraph) → FAQs.
-- **Feel:** flash-sheet print. Paper background, ink-black text, 2px ink borders, 4px corners, no shadows. **One accent treatment:** traditional-tattoo red used for a thick left rule (Verified cards, H1 underline bar) and primary buttons.
-- **Palette** (checked AA, see `src/theme.css`): ink `#16130f`, paper `#fbf8f2`, red `#a4241c`, teal `#0d5c55` (links), muted `#57514a`, rule `#16130f`. Banner: paper on ink.
-- **Font:** Atkinson Hyperlegible Next (variable WOFF2, self-hosted, OFL), 18px/1.6, 70ch measure; headings in the same family at weight 800.
-- **Density:** medium; cards as bordered boxes with the 3–5 facts in a definition list.
+Redesigned 2026-09-30 at the owner's request ("premium, independent tattoo-studio discovery directory, not Yelp"). The earlier flash-sheet direction is replaced by:
+
+- **Feel:** high-end tattoo magazine + editorial directory. Warm ivory paper, near-black ink, thin 1px rules, 2px corners, no shadows, a faint paper grain on the hero and flash-sheet hatching as the image placeholder.
+- **Type:** Instrument Serif (display, self-hosted, OFL, `font-display: optional` so headlines never shift) for H1/H2, card titles and the style index; Atkinson Hyperlegible Next for body and UI. Uppercase tracked wordmark.
+- **Accent:** one oxblood red (`#9f2a1c`) for the Verified check, kickers, focus rings and hover underlines. Buttons are ink.
+- **Home order:** hero (headline, search, popular style chips + walk-ins) → launch state while fewer than `ui.launchThreshold` listings → Explore by style (numbered editorial index) → Explore by city (only past the launch state, real counts) → studios → Why TattooStudioGuide (restates existing policies) → owner CTA band → FAQs.
+- **Nav:** Studios (`/studios/`, search), Styles (`/styles/`), Cities (`/tattoo-shops/`), Add a studio. Mobile menu is a `<details>` element (no JS).
+- **Cards:** image or placeholder (4:3), serif name, city, Verified mark, top 3 styles, up to 3 practical flags, "View studio →". Whole card is one link.
+- **Studio page:** name, address, Verified mark → gallery (or placeholder) → Styles, About, From the owner, then Visit / Opening hours / Information panels (sticky on desktop, right after About on mobile) → Good to know (only published facts) → FAQs → nearby studios. "Information last checked {date}" and "Report incorrect information" on every listing.
+- **Search:** static index at `/data/search.json`; the script understands styles (with synonyms like "colour", "script"), walk-ins, "verified", and matches the rest against name, street, city, state and ZIP ("fine line austin"). Filters show only for facts present in the data.
+- **Map:** no tile provider yet. `site.map` is `null`; cards carry `data-lat`/`data-lng` and `.results-layout.has-map` reserves the right-hand column, so a map can be added without reworking pages.
+- **Photos:** optional `images` per listing, files in `src/assets/listings/{slug}/`, resized to WebP `srcset` at build.
 
 ## Defaults picked (no answer yet)
 

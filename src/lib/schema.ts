@@ -47,6 +47,8 @@ export const listingSchema = z
     source: z.string().min(1),
     description: z.string().max(1200).optional(),
     bookingUrl: z.url().optional(),
+    /** Photos in src/assets/listings/{slug}/, first one is the cover. Alt text describes the photo. */
+    images: z.array(z.object({ file: z.string().regex(/^[a-z0-9][a-z0-9._-]*\.(jpe?g|png|webp|avif)$/i), alt: z.string().min(3).max(200) }).strict()).max(12).optional(),
   })
   .strict()
   .refine((l) => l.tier !== 'verified' || !!l.verifiedUntil, { message: 'verified listings need verifiedUntil', path: ['verifiedUntil'] });

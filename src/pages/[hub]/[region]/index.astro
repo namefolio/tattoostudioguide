@@ -1,6 +1,6 @@
 ---
 import Base from '../../../layouts/Base.astro';
-import ListingList from '../../../components/ListingList.astro';
+import Results from '../../../components/Results.astro';
 import BestFor from '../../../components/BestFor.astro';
 import { site } from '../../../../site.config';
 import { regionPaths } from '../../../lib/pages';
@@ -10,19 +10,32 @@ import type { Region } from '../../../lib/core';
 export const getStaticPaths = regionPaths;
 const { region, intro, noindex } = Astro.props as { region: Region; intro: string; noindex: boolean };
 const hubUrl = `/${site.hub}/`;
+const u = site.ui;
 ---
 <Base
   title={site.titles.region(region.name, region.listings.length)}
   description={site.titles.regionDescription(region.name, region.listings.length, region.cities.length)}
   path={region.url}
   noindex={noindex}
-  crumbs={[{ name: 'Home', url: '/' }, { name: site.entity.Many, url: hubUrl }, { name: region.name, url: region.url }]}
+  bare
+  crumbs={[{ name: 'Home', url: '/' }, { name: 'Cities', url: hubUrl }, { name: region.name, url: region.url }]}
   jsonld={[itemList(`${site.entity.Many} in ${region.name}`, region.listings)]}
 >
-  <h1>{site.entity.Many} in {region.name}</h1>
-  <p class="lead">{intro}</p>
-  <h2>Cities</h2>
-  <ul class="tiles">{region.cities.map((c) => <li><a href={c.url}>{c.name} ({c.listings.length})</a></li>)}</ul>
-  <ListingList listings={region.listings} heading={`All ${site.entity.many} in ${region.name}`} showCity />
-  <BestFor listings={region.listings} place={region.name} />
+  <div class="wrap">
+    <header class="page-head">
+      <span class="kicker">State</span>
+      <h1>{site.entity.Many} in {region.name}</h1>
+      <p class="lead">{intro}</p>
+    </header>
+    <section aria-labelledby="cities">
+      <h2 id="cities" class="visually-hidden">Cities in {region.name}</h2>
+      <ul class="city-list">
+        {region.cities.map((c) => <li><a href={c.url}><span class="city">{c.name}</span><span class="meta">{c.listings.length} {c.listings.length === 1 ? u.one : u.many}</span></a></li>)}
+      </ul>
+    </section>
+    <div class="section">
+      <Results listings={region.listings} heading={`All ${u.many} in ${region.name}`} showCity />
+    </div>
+    <BestFor listings={region.listings} place={region.name} />
+  </div>
 </Base>

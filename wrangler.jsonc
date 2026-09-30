@@ -19,6 +19,16 @@
     "SUBMISSIONS_TO": "hello@namefolio.co",
     "FORM_FROM": "submissions@tattoostudioguide.com",
     "TURNSTILE_SITE_KEY": ""
+  },
+  // Branch previews (Workers Builds runs `wrangler preview` for non-production branches).
+  // The form fails closed without the Turnstile secret, so previews send no email in practice.
+  "previews": {
+    "vars": {
+      "SUBMISSIONS_TO": "hello@namefolio.co",
+      "FORM_FROM": "submissions@tattoostudioguide.com",
+      "TURNSTILE_SITE_KEY": ""
+    },
+    "send_email": [{ "name": "SUBMISSIONS", "destination_address": "hello@namefolio.co" }]
   }
   // Secret: TURNSTILE_SECRET (wrangler secret put TURNSTILE_SECRET). Local dev uses .dev.vars with test keys.
 }

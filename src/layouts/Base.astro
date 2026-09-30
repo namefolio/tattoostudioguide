@@ -15,8 +15,12 @@ interface Props {
   /** Markdown twin; defaults to {path}index.md. Set false for pages without one. */
   markdown?: string | false;
   banner?: boolean;
+  /** Page manages its own .wrap containers (full-bleed sections). */
+  bare?: boolean;
+  /** Share image path (first listing photo). */
+  image?: string;
 }
-const { title, description, path, noindex = false, jsonld = [], crumbs, markdown, banner = false } = Astro.props;
+const { title, description, path, noindex = false, jsonld = [], crumbs, markdown, banner = false, bare = false, image } = Astro.props;
 const canonical = new URL(path, site.url).href;
 const md = markdown === false ? undefined : (markdown ?? `${path}index.md`);
 const ld = [...jsonld];
@@ -28,6 +32,13 @@ if (crumbs?.length) {
   });
 }
 const forSale = PLACEHOLDERS.forSaleContact;
+const u = site.ui;
+const nav = [
+  { href: '/studios/', label: u.Many },
+  { href: `/${site.primaryTaxonomy}/`, label: u.Terms },
+  { href: `/${site.hub}/`, label: 'Cities' },
+];
+const current = (href: string) => (path === href || (href !== '/' && path.startsWith(href)) ? 'page' : undefined);
 ---
 <!doctype html>
 <html lang={site.lang}>
@@ -39,6 +50,7 @@ const forSale = PLACEHOLDERS.forSaleContact;
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex,follow" />}
     <link rel="preload" href="/fonts/atkinson-hyperlegible-next.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/instrument-serif.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     {md && <link rel="alternate" type="text/markdown" href={md} title="Markdown version" />}
     <meta property="og:type" content="website" />
@@ -47,7 +59,9 @@ const forSale = PLACEHOLDERS.forSaleContact;
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:locale" content={site.ogLocale} />
-    <meta name="theme-color" content="#16130f" />
+    {image && <meta property="og:image" content={new URL(image, site.url).href} />}
+    <meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
+    <meta name="theme-color" content="#141210" />
     {ld.map((o) => <script type="application/ld+json" set:html={JSON.stringify(o).replace(/</g, '\\u003c')} />)}
     <slot name="head" />
   </head>
@@ -59,34 +73,57 @@ const forSale = PLACEHOLDERS.forSaleContact;
     <header class="site-header">
       <div class="wrap">
         <a class="logo" href="/">{site.name}</a>
-        <nav aria-label="Main">
+        <nav class="nav-main" aria-label="Main">
           <ul>
-            <li><a href={`/${site.hub}/`}>Browse by {site.regionNoun}</a></li>
-            <li><a href="/add-your-business/">Add a listing</a></li>
+            {nav.map((n) => <li><a href={n.href} aria-current={current(n.href)}>{n.label}</a></li>)}
+            <li class="nav-cta"><a href="/add-your-business/" aria-current={current('/add-your-business/')}>Add a {u.one}</a></li>
           </ul>
         </nav>
+        <details class="nav-menu">
+          <summary><span class="bars" aria-hidden="true"></span><span>Menu</span></summary>
+          <nav aria-label="Menu">
+            <ul>
+              <li><a href="/">Home</a></li>
+              {nav.map((n) => <li><a href={n.href} aria-current={current(n.href)}>{n.label}</a></li>)}
+              <li><a href="/listing-plans/">Listing plans</a></li>
+              <li class="nav-cta"><a href="/add-your-business/">Add a {u.one}</a></li>
+            </ul>
+          </nav>
+        </details>
       </div>
     </header>
-    <main id="main" class="wrap">
+    <main id="main">
       {crumbs?.length && (
-        <nav class="crumbs" aria-label="Breadcrumb">
+        <nav class="crumbs wrap" aria-label="Breadcrumb">
           <ol>
             {crumbs.map((c, i) => (i === crumbs.length - 1 ? <li aria-current="page">{c.name}</li> : <li><a href={c.url}>{c.name}</a></li>))}
           </ol>
         </nav>
       )}
-      <slot />
+      {bare ? <slot /> : <div class="wrap"><slot /></div>}
     </main>
     <footer class="site-footer">
-      <div class="wrap">
-        <ul class="footer-links">
-          <li><a href="/about/">About and sources</a></li>
-          <li><a href="/privacy/">Privacy</a></li>
-          <li><a href="/add-your-business/">Add or update a listing</a></li>
-          <li><a href="/listing-plans/">Listing plans</a></li>
-          <li><a href="/llms.txt">llms.txt</a></li>
-        </ul>
-        <p class="muted">{footerLine}</p>
+      <div class="wrap footer-grid">
+        <div>
+          <p class="footer-logo">{site.name}</p>
+          <p class="footer-note">{footerLine}</p>
+        </div>
+        <div>
+          <p class="footer-head">Explore</p>
+          <ul class="footer-links">
+            {nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}
+          </ul>
+        </div>
+        <div>
+          <p class="footer-head">For {u.many}</p>
+          <ul class="footer-links">
+            <li><a href="/add-your-business/">Add or update a listing</a></li>
+            <li><a href="/listing-plans/">Listing plans</a></li>
+            <li><a href="/about/">About and sources</a></li>
+            <li><a href="/privacy/">Privacy</a></li>
+            <li><a href="/llms.txt">llms.txt</a></li>
+          </ul>
+        </div>
       </div>
     </footer>
   </body>

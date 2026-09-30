@@ -1,14 +1,29 @@
 ---
+// Editorial listing card. Keep in sync with renderCard() in src/scripts/results.ts.
 import { site } from '../../site.config';
+import VerifiedBadge from './VerifiedBadge.astro';
+import { filterKeys, initials, place, primaryLabel, primaryTerms } from '../lib/discovery';
+import { photos } from '../lib/images';
 import type { Listing } from '../lib/types';
-interface Props { listing: Listing; showCity?: boolean }
-const { listing: l, showCity = false } = Astro.props;
-const facts = site.cardFacts(l);
+interface Props { listing: Listing; showCity?: boolean; eager?: boolean }
+const { listing: l, eager = false } = Astro.props;
 const verified = l.effectiveTier === 'verified';
+const terms = primaryTerms(l);
+const flags = site.cardFlags(l).slice(0, 3);
+const [cover] = await photos(l, [400, 640, 960], 1);
 ---
-<li class:list={['card', { 'is-verified': verified }]}>
-  {verified && <span class="badge">Verified</span>}
-  <h3><a href={l.url}>{l.name}</a></h3>
-  <p class="muted">{l.address.street}{showCity ? `, ${l.address.city}, ${l.address.region}` : ''}</p>
-  {facts.length > 0 && <ul>{facts.map((f) => <li>{f}</li>)}</ul>}
+<li class:list={['card', { 'is-verified': verified }]} data-t={terms.join(' ')} data-f={filterKeys(l).join(' ')} data-v={verified ? '1' : undefined} data-lat={l.lat} data-lng={l.lng}>
+  <div class="card-media">
+    {cover ? (
+      <img src={cover.src} srcset={cover.srcset} sizes="(min-width: 80rem) 24rem, (min-width: 40rem) 45vw, 100vw" width={cover.width} height={cover.height} alt={cover.alt} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+    ) : (
+      <div class="ph" aria-hidden="true"><span>{initials(l.name)}</span></div>
+    )}
+  </div>
+  <h3 class="card-title"><a href={l.url}>{l.name}</a></h3>
+  <p class="card-loc">{place(l)}</p>
+  {verified && <VerifiedBadge />}
+  {terms.length > 0 && <p class="card-styles">{terms.slice(0, 3).map(primaryLabel).join(' · ')}</p>}
+  {flags.length > 0 && <p class="card-flags">{flags.join(' · ')}</p>}
+  <p class="card-cta" aria-hidden="true">View {site.ui.one} <span>→</span></p>
 </li>

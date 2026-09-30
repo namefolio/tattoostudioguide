@@ -63,3 +63,17 @@ export const aboutListings = [
   `Basic listings are free. Their details come from public sources (the ${e.one}’s own website and social pages) or from a submission, and each shows the date it was last updated. Nobody at the ${e.one} has confirmed a Basic listing with us.`,
   `Verified listings are paid. Before we label a listing Verified, ${credentialCheck}. Verified listings are shown first, with a one-line note saying so wherever that happens. The label lapses back to Basic if it is not renewed.`,
 ];
+
+/** Home "Why" points. Each restates a policy already on About and Listing plans; no new claims. */
+export const whyPoints = [
+  { title: 'Independent', text: `Not owned by any ${e.one}, and no referral fees. The only thing a ${e.one} can pay for is Verified.` },
+  { title: 'Transparent', text: `Verified means one thing: we checked the ${site.credential.name} and confirmed the details with the owner. It is paid, labeled, and never a rating.` },
+  { title: 'No ratings', text: `No stars, reviews or rankings. Each listing shows the facts the ${e.one} publishes, and nothing is estimated.` },
+  { title: 'Fresh information', text: 'Every listing shows the date it was last checked. Unknown details are left out, never guessed.' },
+];
+
+export const ownerTitle = `Own a ${site.ui.one}?`;
+export const ownerText = `Add your ${site.ui.one} or send a correction for free. Want the Verified label? It is ${price}: ${credentialCheck}.`;
+
+/** One line under the Verified mark on a listing page. */
+export const verifiedLine = `We checked the ${site.credential.name} and confirmed these details with the owner. Verified listings are paid and shown first; it is not a rating.`;
