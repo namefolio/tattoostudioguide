@@ -1,6 +1,7 @@
 /* Niche design tokens. The next site changes this file (and site.config.ts), not src/styles/base.css.
-   Direction (docs/BRIEF.md): flash-sheet print. Ink on paper, 2px ink rules, one traditional-red accent.
-   Contrast (WCAG): ink/paper 17.5, red/paper 7.0, teal/paper 7.4, muted/paper 7.4, paper/ink 17.5 (banner). */
+   Direction (docs/BRIEF.md): high-end tattoo magazine + editorial directory. Ivory paper, near-black ink,
+   thin rules, a serif display face for headlines, one oxblood accent used sparingly.
+   Contrast (WCAG, on --paper): ink 16.9, muted 6.6, accent 7.1, field border 3.9 (non-text), paper on ink 16.9. */
 
 @font-face {
   font-family: 'Atkinson Hyperlegible Next';
@@ -19,28 +20,63 @@
   descent-override: 24%;
 }
 
+/* Display face for headlines. "optional" means no late swap, so big headings never shift. */
+@font-face {
+  font-family: 'Instrument Serif';
+  src: url('/fonts/instrument-serif.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  src: url('/fonts/instrument-serif-italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'Display Fallback';
+  src: local('Times New Roman'), local('Liberation Serif'), local('Georgia');
+  size-adjust: 92%;
+  ascent-override: 100%;
+  descent-override: 28%;
+}
+
 :root {
   --font-body: 'Atkinson Hyperlegible Next', 'Atkinson Fallback', system-ui, sans-serif;
-  --font-size: 1.125rem; /* 18px */
+  --font-display: 'Instrument Serif', 'Display Fallback', Georgia, serif;
+  --font-size: 1.0625rem; /* 17px */
   --line-height: 1.6;
-  --measure: 70ch;
-  --heading-weight: 800;
+  --measure: 68ch;
+  --heading-weight: 400; /* display face has one weight */
+  --ui-weight: 700;
+  --display-case: uppercase; /* hero headline */
+  --logo-case: uppercase;
 
-  --ink: #16130f;
-  --paper: #fbf8f2;
-  --surface: #ffffff;
-  --muted: #57514a;
-  --accent: #a4241c; /* traditional tattoo red: buttons, Verified rule, H1 bar */
+  --ink: #141210;
+  --paper: #f5f0e6; /* warm ivory */
+  --surface: #fbf8f2; /* cards, panels */
+  --sunken: #ebe4d6; /* image placeholders, chips */
+  --muted: #5b544b;
+  --accent: #9f2a1c; /* oxblood: Verified mark, kickers, focus */
   --on-accent: #fbf8f2;
-  --link: #0d5c55;
-  --rule: #16130f;
-  --banner-bg: #16130f;
-  --banner-fg: #fbf8f2;
-  --focus: #0d5c55;
+  --link: #141210;
+  --rule: #d6ccbb; /* thin dividers (decorative) */
+  --rule-strong: #141210;
+  --field: #7d746a; /* form and chip borders, 3:1 on paper */
+  --banner-bg: #141210;
+  --banner-fg: #f5f0e6;
+  --focus: #9f2a1c;
 
-  --border: 2px solid var(--rule);
-  --radius: 4px;
-  --accent-rule: 6px solid var(--accent);
+  --border: 1px solid var(--rule);
+  --border-strong: 1px solid var(--rule-strong);
+  --radius: 2px;
   --gap: 1.25rem;
-  --page: 72rem;
+  --page: 80rem;
+
+  /* Placeholder image texture: fine diagonal hatching, like a flash sheet. */
+  --hatch: repeating-linear-gradient(135deg, transparent 0 7px, rgb(20 18 16 / 0.07) 7px 8px);
+  /* Paper grain on the hero. */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.08 0 0 0 0 0.07 0 0 0 0 0.06 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
 }

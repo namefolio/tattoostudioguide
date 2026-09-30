@@ -33,6 +33,8 @@ ${regionsIndexMd(regions)}
 
 ## Pages
 
+- [Search all listings](${site.url}/${site.ui.many}/)
+- [Styles](${site.url}/${site.primaryTaxonomy}/)
 - [Listing plans](${site.url}/listing-plans/)
 - [About and sources](${site.url}/about/)
 - [Add or update a listing](${site.url}/add-your-business/)

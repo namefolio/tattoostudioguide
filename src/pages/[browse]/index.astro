@@ -1,0 +1,100 @@
+---
+// /studios/: search and browse every listing. The first page is server-rendered; the script
+// loads /data/search.json to search, filter and show more.
+import Base from '../../layouts/Base.astro';
+import ListingCard from '../../components/ListingCard.astro';
+import VerifiedBadge from '../../components/VerifiedBadge.astro';
+import Icon from '../../components/Icon.astro';
+import { site } from '../../../site.config';
+import { disclosure, disclosureLinkText } from '../../lib/copy';
+import { loadAll } from '../../lib/data';
+import { allPrimaryTerms, filtersIn, primaryTerms } from '../../lib/discovery';
+
+export const getStaticPaths = () => [{ params: { browse: site.ui.many } }];
+const { listings, regions } = await loadAll();
+const u = site.ui;
+const PAGE = 24;
+const path = `/${u.many}/`;
+const terms = allPrimaryTerms().filter(([k]) => listings.some((l) => primaryTerms(l).includes(k)));
+const filters = filtersIn(listings);
+const hasVerified = listings.some((l) => l.effectiveTier === 'verified');
+const plural = (n: number) => `${n} ${n === 1 ? u.one : u.many}`;
+---
+<Base title={site.titles.studios} description={site.titles.studiosDescription} path={path} noindex={listings.length < 3} bare crumbs={[{ name: 'Home', url: '/' }, { name: u.Many, url: path }]}>
+  <div class="wrap">
+    <header class="page-head">
+      <span class="kicker">Directory</span>
+      <h1>Find a {u.one}</h1>
+      <p class="lead">Search by city, style or name. Combine them: “fine line Austin”.</p>
+    </header>
+    {listings.length === 0 ? (
+      <div class="launch">
+        <div>
+          <h2>{u.launchTitle}</h2>
+          <p class="lead">{u.launchLead}</p>
+        </div>
+        <div>
+          <p>Know a {u.one} that belongs here?</p>
+          <div class="btns"><a class="btn btn-primary" href="/add-your-business/">Add a {u.one}</a></div>
+        </div>
+      </div>
+    ) : (
+      <section class="results" data-results data-src="/data/search.json" data-one={u.one} data-many={u.many} aria-labelledby="results">
+        <h2 id="results" class="visually-hidden">Results</h2>
+        <div class="results-bar">
+          <form class="search" role="search" action={path} method="get">
+            <label for="q" class="visually-hidden">Search {u.many}</label>
+            <Icon name="search" />
+            <input id="q" name="q" type="search" placeholder={u.searchPlaceholder} autocomplete="off" enterkeyhint="search" />
+            <button type="submit"><span class="btn-text">Search</span><Icon name="arrow" class="btn-icon" /></button>
+          </form>
+          <div class="filters" role="group" aria-label={`Filter ${u.many}`} data-js hidden>
+            {terms.length > 1 && (
+              <>
+                <label for="style" class="visually-hidden">{u.Terms}</label>
+                <select id="style" data-style>
+                  <option value="">All {u.terms}</option>
+                  {terms.map(([k, label]) => <option value={k}>{label}</option>)}
+                </select>
+              </>
+            )}
+            {hasVerified && <button class="chip" type="button" aria-pressed="false" data-toggle="v"><Icon name="check" class="chip-icon" />&nbsp;Verified</button>}
+            {filters.map((f) => <button class="chip" type="button" aria-pressed="false" data-toggle={f.key}>{f.label}</button>)}
+          </div>
+        </div>
+        <div class="results-meta">
+          <p class="results-count" aria-live="polite" data-count>{plural(listings.length)} listed</p>
+          <button class="link-btn" type="button" data-clear hidden>Clear filters</button>
+        </div>
+        {hasVerified && <p class="disclosure">{disclosure} <a href="/listing-plans/">{disclosureLinkText}</a></p>}
+        <div class:list={['results-layout', { 'has-map': !!site.map }]}>
+          <ul class="grid" data-list>
+            {listings.slice(0, PAGE).map((l, i) => <ListingCard listing={l} showCity eager={i < 2} />)}
+          </ul>
+        </div>
+        <div class="show-more"><button class="btn btn-secondary" type="button" data-more hidden>Show more {u.many}</button></div>
+        <div class="empty" data-empty hidden>
+          <h3>No {u.many} found</h3>
+          <p>Try another city or {u.term}, or check the spelling.</p>
+          <div class="btns">
+            <button class="btn btn-primary" type="button" data-clear>Clear filters</button>
+            <a class="btn btn-secondary" href="/add-your-business/">Add a {u.one}</a>
+          </div>
+        </div>
+        <template data-badge><VerifiedBadge /></template>
+      </section>
+    )}
+    {listings.length > PAGE && (
+      <noscript><p><a href={`/${site.hub}/`}>Browse all {u.many} by city</a></p></noscript>
+    )}
+    {regions.length > 0 && (
+      <section class="section" aria-labelledby="by-city">
+        <h2 id="by-city">Browse by city</h2>
+        <ul class="city-list">{regions.flatMap((r) => r.cities.map((c) => <li><a href={c.url}><span class="city">{c.name}</span><span class="meta">{r.code} · {plural(c.listings.length)}</span></a></li>))}</ul>
+      </section>
+    )}
+  </div>
+</Base>
+<script>
+  import '../../scripts/results.ts';
+</script>

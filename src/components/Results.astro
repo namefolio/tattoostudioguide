@@ -1,0 +1,60 @@
+---
+// A filterable grid of listing cards. Filters appear only for facts these listings actually have,
+// and only once the script runs (without JS, the full list shows).
+import ListingCard from './ListingCard.astro';
+import VerifiedBadge from './VerifiedBadge.astro';
+import Icon from './Icon.astro';
+import { site } from '../../site.config';
+import { disclosure, disclosureLinkText } from '../lib/copy';
+import { filtersIn, termsIn } from '../lib/discovery';
+import type { Listing } from '../lib/types';
+interface Props { listings: Listing[]; heading: string; showCity?: boolean; headingId?: string; hideStyle?: boolean }
+const { listings, heading, showCity, headingId = 'results', hideStyle = false } = Astro.props;
+const u = site.ui;
+const terms = hideStyle ? [] : termsIn(listings);
+const filters = filtersIn(listings);
+const nVerified = listings.filter((l) => l.effectiveTier === 'verified').length;
+const showV = nVerified > 0 && nVerified < listings.length;
+const hasFilters = listings.length > 1 && (terms.length > 1 || filters.length > 0 || showV);
+const plural = (n: number) => `${n} ${n === 1 ? u.one : u.many}`;
+---
+<section class="results" data-results data-one={u.one} data-many={u.many} aria-labelledby={headingId}>
+  <div class="section-head">
+    <h2 id={headingId}>{heading}</h2>
+  </div>
+  {hasFilters && (
+    <div class="filters" role="group" aria-label={`Filter ${u.many}`} data-js hidden>
+      {terms.length > 1 && (
+        <>
+          <label for={`${headingId}-style`} class="visually-hidden">{u.Terms}</label>
+          <select id={`${headingId}-style`} data-style>
+            <option value="">All {u.terms}</option>
+            {terms.map((t) => <option value={t.term}>{t.label} ({t.count})</option>)}
+          </select>
+        </>
+      )}
+      {showV && <button class="chip" type="button" aria-pressed="false" data-toggle="v"><Icon name="check" class="chip-icon" />&nbsp;Verified</button>}
+      {filters.map((f) => <button class="chip" type="button" aria-pressed="false" data-toggle={f.key}>{f.label}</button>)}
+    </div>
+  )}
+  <div class="results-meta">
+    <p class="results-count" aria-live="polite" data-count>{plural(listings.length)}</p>
+    <button class="link-btn" type="button" data-clear hidden>Clear filters</button>
+  </div>
+  {nVerified > 0 && <p class="disclosure">{disclosure} <a href="/listing-plans/">{disclosureLinkText}</a></p>}
+  <div class:list={['results-layout', { 'has-map': !!site.map }]}>
+    <ul class="grid" data-list>
+      {listings.map((l, i) => <ListingCard listing={l} showCity={showCity} eager={i < 2} />)}
+    </ul>
+    {/* Map slot: when site.map is set, a MapPanel reads each card's data-lat/data-lng. */}
+  </div>
+  <div class="empty" data-empty hidden>
+    <h3>No {u.many} match these filters</h3>
+    <p>Try another {u.term}, or clear the filters.</p>
+    <div class="btns"><button class="btn btn-primary" type="button" data-clear>Clear filters</button></div>
+  </div>
+  <template data-badge><VerifiedBadge /></template>
+</section>
+<script>
+  import '../scripts/results.ts';
+</script>

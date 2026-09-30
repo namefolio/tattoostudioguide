@@ -1,0 +1,7 @@
+---
+// The one Verified mark. Text plus icon, so it never relies on colour alone.
+import Icon from './Icon.astro';
+interface Props { class?: string; tag?: 'p' | 'span' }
+const { class: cls = 'card-badge', tag: Tag = 'p' } = Astro.props;
+---
+<Tag class={cls}><Icon name="check" />Verified</Tag>

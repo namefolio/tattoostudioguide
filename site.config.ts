@@ -1,7 +1,7 @@
 // Everything niche-specific lives here (plus src/theme.css, docs/BRIEF.md and the listing files).
 // To start the next domain, change this file; the engine in src/lib and src/pages holds no niche words.
 import { US_STATES } from './src/data/us-states';
-import type { AttributeDef, BestFor, Faq, ListingData, Taxonomy } from './src/lib/types';
+import type { AttributeDef, BestFor, Faq, ListingData, ListingFilter, Taxonomy } from './src/lib/types';
 
 // ---- Launch values (same as Ben's other directory sites; npm run check warns if any PLACEHOLDER remains) ----
 export const PLACEHOLDERS = {
@@ -50,9 +50,36 @@ const attributes: AttributeDef[] = [
   { key: 'cardsAccepted', label: 'Cards accepted', type: 'bool' },
 ];
 
+// General descriptions of each style for the styles index. About the style, never about any shop.
+const styleIntros: Record<string, string> = {
+  'fine-line': 'Thin, precise linework, often with a single needle. Delicate florals, script and small detailed pieces.',
+  traditional: 'Bold black outlines, a limited palette and classic flash motifs: roses, daggers, eagles, swallows.',
+  'neo-traditional': 'Traditional’s bold lines with a wider palette, more depth and more ornate detail.',
+  realism: 'Pieces that look like photographs or paintings, built from careful shading and contrast.',
+  blackwork: 'Solid black ink used boldly: heavy fills, patterns, ornamental and graphic designs.',
+  japanese: 'Irezumi tradition: koi, dragons, waves and flowers, often planned as large flowing pieces.',
+  'black-and-grey': 'Black ink diluted to soft greys for smooth shading, portraits and realism.',
+  color: 'Full-color work, from saturated traditional palettes to soft blended tones.',
+  lettering: 'Script, calligraphy and type: names, dates and words, where the lettering is the design.',
+  geometric: 'Lines, shapes and symmetry: mandalas, dotwork patterns and sacred geometry.',
+  watercolor: 'Soft washes and bleeds of color that imitate watercolor painting, with or without outlines.',
+  portraits: 'Likenesses of people and pets, usually in realism or black and grey.',
+};
+
 const has = (l: ListingData, key: string, term: string) =>
   Array.isArray(l.attributes[key]) && (l.attributes[key] as string[]).includes(term);
 const opensSunday = (l: ListingData) => !!l.hours?.sun && l.hours.sun !== 'closed';
+
+/** Short practical facts on listing cards. Only from the listing's own data. */
+function cardFlags(l: ListingData): string[] {
+  const out: string[] = [];
+  if (has(l, 'services', 'walk-ins')) out.push('Walk-ins');
+  else if (l.attributes.appointmentOnly === true) out.push('Appointment only');
+  if (typeof l.attributes.minimumCharge === 'number') out.push(`$${l.attributes.minimumCharge} minimum`);
+  if (opensSunday(l)) out.push('Open Sundays');
+  if (has(l, 'services', 'piercing')) out.push('Piercing');
+  return out.slice(0, 4);
+}
 
 const taxonomies: Taxonomy[] = [
   {
@@ -109,18 +136,14 @@ export const site = {
   taxonomies,
   bestFor,
 
-  /** 3–5 short facts on listing cards. */
+  /** 3–5 short facts for meta descriptions and markdown tables. */
   cardFacts(l: ListingData): string[] {
-    const out: string[] = [];
     const s = (l.attributes.styles as string[] | undefined) ?? [];
-    if (s.length) out.push(s.slice(0, 3).map((k) => styles[k]).join(', '));
-    if (has(l, 'services', 'walk-ins')) out.push('Walk-ins');
-    else if (l.attributes.appointmentOnly === true) out.push('Appointment only');
-    if (typeof l.attributes.minimumCharge === 'number') out.push(`$${l.attributes.minimumCharge} minimum`);
-    if (opensSunday(l)) out.push('Open Sundays');
-    if (has(l, 'services', 'piercing')) out.push('Piercing');
-    return out.slice(0, 5);
+    return [...(s.length ? [s.slice(0, 3).map((k) => styles[k]).join(', ')] : []), ...cardFlags(l)].slice(0, 5);
   },
+
+  /** Short practical facts on listing cards, under the style line. */
+  cardFlags,
 
   /** FAQs built only from the listing's own data. */
   listingFaqs(l: ListingData): Faq[] {
@@ -154,8 +177,64 @@ export const site = {
     { q: 'What does Verified mean?', a: 'Verified listings are paid. We check the shop’s tattoo establishment license and confirm the details with the owner, then label the listing and show it first. It is never a rating.' },
   ] as Faq[],
 
+  // ---- Discovery UI (home, search, filters, cards) ----
+  ui: {
+    /** Short noun used in navigation, buttons and cards; SEO titles keep `entity`. */
+    one: 'studio',
+    many: 'studios',
+    One: 'Studio',
+    Many: 'Studios',
+    /** Words for the primary taxonomy in the UI. */
+    term: 'style',
+    terms: 'styles',
+    Terms: 'Styles',
+    termsH1: 'Tattoo styles',
+    termsLead: 'Start with the look you want. Each style lists the studios that say they tattoo it.',
+    heroTitle: ['Find your next', 'tattoo studio'],
+    heroLead: 'Discover tattoo studios by city, location and style.',
+    searchPlaceholder: 'City, style or studio name',
+    /** Stopwords ignored by search, on top of the entity words. */
+    searchStopwords: ['tattoo', 'tattoos', 'tattooist', 'parlor', 'parlour'],
+    /** Home shows a launch state until this many listings are live. */
+    launchThreshold: 12,
+    launchTitle: 'We’re building the independent tattoo studio directory.',
+    launchLead: 'Studios are being added and checked across the US, city by city.',
+  },
+
+  /** The taxonomy shown on cards, in the hero shortcuts and on the styles index. */
+  primaryTaxonomy: 'styles',
+  /** Terms in the hero and "Explore by style", in this order. */
+  featuredTerms: ['fine-line', 'blackwork', 'traditional', 'japanese', 'realism', 'neo-traditional', 'lettering', 'color'],
+  termIntros: styleIntros,
+  /** Shorter names for chips and the style index where the full label is long. */
+  termShort: { traditional: 'Traditional', lettering: 'Lettering', 'black-and-grey': 'Black & grey' } as Record<string, string>,
+  /** Extra words search understands for a term (lower case). */
+  termSynonyms: {
+    'fine-line': ['fineline', 'fine line', 'single needle'],
+    traditional: ['traditional', 'american traditional', 'old school'],
+    'black-and-grey': ['black and gray', 'black and grey', 'black & grey', 'black & gray'],
+    color: ['colour', 'color', 'colored', 'coloured'],
+    lettering: ['lettering', 'script', 'calligraphy'],
+    japanese: ['japanese', 'irezumi'],
+    portraits: ['portrait', 'portraits'],
+  } as Record<string, string[]>,
+
+  /** Simple yes/no filters. Shown only where at least one listing on the page matches. */
+  filters: [
+    { key: 'walk-ins', label: 'Walk-ins', words: ['walk in', 'walk ins', 'walkin', 'walkins'], test: (l) => has(l, 'services', 'walk-ins') },
+    { key: 'appointment-only', label: 'Appointment only', words: ['appointment only', 'by appointment'], test: (l) => l.attributes.appointmentOnly === true },
+    { key: 'open-sunday', label: 'Open Sundays', words: ['open sunday', 'open sundays', 'sunday'], test: opensSunday },
+  ] as ListingFilter[],
+
+  /** A map beside results needs a tile provider; none is set up yet (see docs/BRIEF.md). */
+  map: null as null | { tileUrl: string; attribution: string },
+
   titles: {
     home: 'Tattoo Shops & Studios in the US by City and Style | TattooStudioGuide',
+    studios: 'Search Tattoo Studios in the US by City and Style | TattooStudioGuide',
+    studiosDescription: 'Search tattoo shops and studios by city, style or name. Filter by walk-ins and Verified listings. No ratings, just the facts each shop publishes.',
+    styles: 'Tattoo Styles: Find Studios by Style | TattooStudioGuide',
+    stylesDescription: 'Fine line, blackwork, traditional, Japanese, realism and more. What each tattoo style is, and the studios that list it.',
     homeDescription: 'Find tattoo shops by state, city and style. Hours, walk-ins, shop minimums and how to book, with the date each listing was last checked.',
     homeH1: 'Find a tattoo shop near you',
     region: (name: string, n: number) => `Tattoo Shops in ${name}: ${n} Studios by City | TattooStudioGuide`,

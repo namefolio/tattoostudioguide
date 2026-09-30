@@ -16,7 +16,7 @@ export const itemList = (name: string, listings: Listing[]) => ({
 });
 
 /** Business markup. Deliberately says nothing about tier or verification, and carries no ratings. */
-export const business = (l: Listing) => ({
+export const business = (l: Listing, image?: string) => ({
   '@context': 'https://schema.org',
   '@type': site.schemaType,
   '@id': abs(l.url) + '#business',
@@ -26,6 +26,7 @@ export const business = (l: Listing) => ({
   description: l.summary,
   address: { '@type': 'PostalAddress', streetAddress: l.address.street, addressLocality: l.address.city, addressRegion: l.address.region, postalCode: l.address.postalCode, addressCountry: 'US' },
   geo: { '@type': 'GeoCoordinates', latitude: l.lat, longitude: l.lng },
+  ...(image && { image: abs(image) }),
   ...(l.phone && { telephone: l.phone }),
   ...(l.sameAs.length && { sameAs: l.sameAs }),
   ...(l.hours && { openingHoursSpecification: openingHoursSpec(l) }),

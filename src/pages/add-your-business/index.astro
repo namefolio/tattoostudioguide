@@ -11,11 +11,15 @@ const e = site.entity;
 ---
 <Base title={`Add or update a ${e.one} listing | ${site.name}`} description={`Send a new ${e.one} or a correction. Basic listings are free; Verified is ${price}.`} path="/add-your-business/" crumbs={[{ name: 'Home', url: '/' }, { name: 'Add or update a listing', url: '/add-your-business/' }]}>
   <script slot="head" src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-  <p>Not sure which plan? <a href="/listing-plans/">Compare Basic and Verified</a>.</p>
-  <h1>Add or update a {e.one}</h1>
+  <header class="page-head">
+    <span class="kicker">For {site.ui.many}</span>
+    <h1>Add or update a {site.ui.one}</h1>
+    <p class="lead">Basic listings are free. Send a new {site.ui.one} or a correction, and we check it before it goes live.</p>
+    <p class="small">Not sure which plan? <a href="/listing-plans/">Compare Basic and Verified</a>.</p>
+  </header>
   <p id="update-note" class="disclosure" hidden>You are sending an update for <strong id="update-name">this listing</strong>.</p>
 
-  <form method="post" action="/add-your-business/">
+  <form class="listing-form" method="post" action="/add-your-business/">
     <input type="hidden" name="listing" value="" />
     <fieldset>
       <legend>Choose a listing</legend>
@@ -31,24 +35,28 @@ const e = site.entity;
       <input id="f-name" name="name" type="text" required maxlength="120" autocomplete="organization" />
       <label for="f-street">Street address</label>
       <input id="f-street" name="street" type="text" required maxlength="200" autocomplete="address-line1" />
-      <label for="f-city">City</label>
-      <input id="f-city" name="city" type="text" required maxlength="80" autocomplete="address-level2" />
-      <label for="f-region">State</label>
-      <input id="f-region" name="region" type="text" required maxlength="40" autocomplete="address-level1" />
-      <label for="f-postal">ZIP code</label>
-      <input id="f-postal" name="postalCode" type="text" required maxlength="12" autocomplete="postal-code" />
-      <label for="f-phone">Phone</label>
-      <input id="f-phone" name="phone" type="tel" maxlength="30" />
-      <label for="f-website">Website</label>
-      <input id="f-website" name="website" type="url" maxlength="300" placeholder="https://" />
+      <div class="field-row">
+        <div><label for="f-city">City</label>
+        <input id="f-city" name="city" type="text" required maxlength="80" autocomplete="address-level2" /></div>
+        <div><label for="f-region">State</label>
+        <input id="f-region" name="region" type="text" required maxlength="40" autocomplete="address-level1" /></div>
+        <div><label for="f-postal">ZIP code</label>
+        <input id="f-postal" name="postalCode" type="text" required maxlength="12" autocomplete="postal-code" inputmode="numeric" /></div>
+      </div>
+      <div class="field-row two">
+        <div><label for="f-phone">Phone</label>
+        <input id="f-phone" name="phone" type="tel" maxlength="30" autocomplete="tel" /></div>
+        <div><label for="f-website">Website</label>
+        <input id="f-website" name="website" type="url" maxlength="300" placeholder="https://" autocomplete="url" /></div>
+      </div>
       <label for="f-sameas">Social links <span class="hint">(one per line)</span></label>
       <textarea id="f-sameas" name="sameAs" maxlength="1000"></textarea>
       <label for="f-desc">Short description <span class="hint">(up to 150 words, facts only)</span></label>
       <textarea id="f-desc" name="description" maxlength="1200"></textarea>
     </fieldset>
 
-    <details>
-      <summary>More details (optional)</summary>
+    <details class="more-details">
+      <summary>More details (optional): hours, styles, services</summary>
       <fieldset>
         <legend>Opening hours <span class="hint">(like 11:00-19:00, or closed)</span></legend>
         {DAYS.map((d) => (<><label for={`f-h-${d}`}>{DAY_LABELS[d]}</label><input id={`f-h-${d}`} name={`hours_${d}`} type="text" maxlength="40" /></>))}
@@ -57,9 +65,11 @@ const e = site.entity;
         a.type === 'multi' ? (
           <fieldset>
             <legend>{a.label}</legend>
-            {Object.entries(a.options).map(([k, label]) => (
-              <label class="check"><input type="checkbox" name={a.key} value={k} />{label}</label>
-            ))}
+            <div class="checks">
+              {Object.entries(a.options).map(([k, label]) => (
+                <label class="check"><input type="checkbox" name={a.key} value={k} />{label}</label>
+              ))}
+            </div>
           </fieldset>
         ) : a.type === 'bool' ? (
           <><label for={`f-${a.key}`}>{a.label}</label>

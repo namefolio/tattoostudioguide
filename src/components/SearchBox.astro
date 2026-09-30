@@ -1,0 +1,12 @@
+---
+import { site } from '../../site.config';
+import Icon from './Icon.astro';
+interface Props { value?: string; id?: string; label?: string }
+const { value = '', id = 'q', label = `Search ${site.ui.many}` } = Astro.props;
+---
+<form class="search" role="search" action="/studios/" method="get">
+  <label for={id} class="visually-hidden">{label}</label>
+  <Icon name="search" />
+  <input id={id} name="q" type="search" value={value} placeholder={site.ui.searchPlaceholder} autocomplete="off" enterkeyhint="search" />
+  <button type="submit"><span class="btn-text">Search</span><Icon name="arrow" class="btn-icon" /></button>
+</form>
