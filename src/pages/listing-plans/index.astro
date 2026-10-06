@@ -2,14 +2,14 @@
 import Base from '../../layouts/Base.astro';
 import Faqs from '../../components/Faqs.astro';
 import { site } from '../../../site.config';
-import { basicBullets, howToSteps, payLabel, payLink, plansFaqs, plansIntro, price, verifiedBullets } from '../../lib/copy';
+import { basicBullets, howToSteps, onSale, payLabel, payLink, plansFaqs, plansIntro, price, soonText, verifiedBullets } from '../../lib/copy';
 import { faqPage } from '../../lib/jsonld';
 
 const e = site.entity;
 ---
 <Base
   title={`List your ${e.one}: Basic or Verified | ${site.name}`}
-  description={`Every ${e.one} can have a free Basic listing. Verified (${price}) adds a ${site.credential.name} check, owner confirmation and a place above Basic listings.`}
+  description={`Every ${e.one} can have a free Basic listing. Verified (${onSale ? price : 'coming soon'}) adds a ${site.credential.name} check, owner confirmation and a place above Basic listings.`}
   path="/listing-plans/"
   crumbs={[{ name: 'Home', url: '/' }, { name: 'Listing plans', url: '/listing-plans/' }]}
   jsonld={faqPage(plansFaqs)}
@@ -33,13 +33,26 @@ const e = site.entity;
     </section>
   </div>
 
-  <h2>How to get a Verified listing</h2>
-  <ol>{howToSteps.map((s) => <li>{s}</li>)}</ol>
+  {onSale ? (
+    <>
+      <h2>How to get a Verified listing</h2>
+      <ol>{howToSteps.map((s) => <li>{s}</li>)}</ol>
 
-  <div class="btns">
-    <a class="btn btn-primary" href="/add-your-business/?tier=verified">Send your {e.one}’s details</a>
-    <a class="btn btn-secondary" href={payLink}>{payLabel}</a>
-  </div>
+      <div class="btns">
+        <a class="btn btn-primary" href="/add-your-business/?tier=verified">Send your {e.one}’s details</a>
+        <a class="btn btn-secondary" href={payLink}>{payLabel}</a>
+      </div>
+    </>
+  ) : (
+    <>
+      <h2>Verified is coming soon</h2>
+      <p>{soonText}</p>
+
+      <div class="btns">
+        <a class="btn btn-primary" href="/add-your-business/">Add your {e.one} free</a>
+      </div>
+    </>
+  )}
 
   <Faqs faqs={plansFaqs} />
   </div>

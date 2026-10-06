@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { site } from '../../../site.config';
-import { basicBullets, howToSteps, payLabel, payLink, plansFaqs, plansIntro, price, verifiedBullets } from '../../lib/copy';
+import { basicBullets, howToSteps, onSale, payLabel, payLink, plansFaqs, plansIntro, price, soonText, verifiedBullets } from '../../lib/copy';
 import { faqsMd, mdResponse } from '../../lib/markdown';
 
 export const GET: APIRoute = () =>
@@ -16,10 +16,18 @@ ${basicBullets.map((b) => `- ${b}`).join('\n')}
 
 ${verifiedBullets.map((b) => `- ${b}`).join('\n')}
 
-## How to get a Verified listing
+${
+  onSale
+    ? `## How to get a Verified listing
 
 ${howToSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')}
 
 - Send your ${site.entity.one}’s details: ${site.url}/add-your-business/?tier=verified
-- ${payLabel}: ${payLink}
+- ${payLabel}: ${payLink}`
+    : `## Verified is coming soon
+
+${soonText}
+
+- Add your ${site.entity.one} free: ${site.url}/add-your-business/`
+}
 ${faqsMd(plansFaqs)}`);

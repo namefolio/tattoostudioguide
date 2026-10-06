@@ -15,6 +15,13 @@ export const PLACEHOLDERS = {
   verifiedPaymentLink: 'mailto:hello@namefolio.co',
 };
 
+/**
+ * Freemium: Basic listings are free. Verified is the paid plan, but while this is false it is shown as
+ * "Coming soon": no price, no way to buy it, and every listing renders as Basic (no badge, filter or boost).
+ * Set to true to start selling Verified at PLACEHOLDERS.verifiedPrice.
+ */
+export const VERIFIED_ON_SALE = false;
+
 const styles: Record<string, string> = {
   'fine-line': 'Fine line',
   traditional: 'American traditional',
@@ -174,7 +181,9 @@ export const site = {
     { q: 'How much does a tattoo cost?', a: 'Each shop sets its own prices. Many publish a shop minimum, and where a shop does, we show it on its listing. We never estimate prices.' },
     { q: 'Do I need ID to get a tattoo?', a: 'Shops set their age policy within state law. Most ask for a valid photo ID and tattoo adults 18 and over. Check the listing or call the shop.' },
     { q: 'Can I just walk in?', a: 'Some shops take walk-ins and others work by appointment only. Every listing says which, when the shop has published it.' },
-    { q: 'What does Verified mean?', a: 'Verified listings are paid. We check the shop’s tattoo establishment license and confirm the details with the owner, then label the listing and show it first. It is never a rating.' },
+    VERIFIED_ON_SALE
+      ? { q: 'What does Verified mean?', a: 'Verified listings are paid. We check the shop’s tattoo establishment license and confirm the details with the owner, then label the listing and show it first. It is never a rating.' }
+      : { q: 'Is it free to list a shop?', a: 'Yes. Every shop can have a free listing. Verified, a paid plan where we check the shop’s tattoo establishment license and confirm the details with the owner, is coming soon. It will never be a rating.' },
   ] as Faq[],
 
   // ---- Discovery UI (home, search, filters, cards) ----
@@ -232,7 +241,7 @@ export const site = {
   titles: {
     home: 'Tattoo Shops & Studios in the US by City and Style | TattooStudioGuide',
     studios: 'Search Tattoo Studios in the US by City and Style | TattooStudioGuide',
-    studiosDescription: 'Search tattoo shops and studios by city, style or name. Filter by walk-ins and Verified listings. No ratings, just the facts each shop publishes.',
+    studiosDescription: `Search tattoo shops and studios by city, style or name. Filter by walk-ins${VERIFIED_ON_SALE ? ' and Verified listings' : ', appointment only and Sunday hours'}. No ratings, just the facts each shop publishes.`,
     styles: 'Tattoo Styles: Find Studios by Style | TattooStudioGuide',
     stylesDescription: 'Fine line, blackwork, traditional, Japanese, realism and more. What each tattoo style is, and the studios that list it.',
     homeDescription: 'Find tattoo shops by state, city and style. Hours, walk-ins, shop minimums and how to book, with the date each listing was last checked.',

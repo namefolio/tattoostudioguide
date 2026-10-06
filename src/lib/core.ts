@@ -1,5 +1,5 @@
 // Pure listing logic: tiers, ordering, grouping, nearby. No Astro imports so tests can use it directly.
-import { site } from '../../site.config';
+import { site, VERIFIED_ON_SALE } from '../../site.config';
 import type { Day, Listing, ListingData, Tier } from './types';
 import { DAYS } from './types';
 
@@ -9,9 +9,9 @@ const SCHEMA_DAYS: Record<Day, string> = { mon: 'Monday', tue: 'Tuesday', wed: '
 /** Start of the given day in UTC, so a listing verified "until 2026-10-01" is still Verified on that day. */
 const day = (d: Date) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
 
-/** Verified only while paid and in date; everything else renders as Basic. */
-export function effectiveTier(l: Pick<ListingData, 'tier' | 'verifiedUntil'>, today: Date): Tier {
-  return l.tier === 'verified' && l.verifiedUntil && day(l.verifiedUntil) >= day(today) ? 'verified' : 'basic';
+/** Verified only while the plan is on sale and the listing is paid and in date; everything else renders as Basic. */
+export function effectiveTier(l: Pick<ListingData, 'tier' | 'verifiedUntil'>, today: Date, onSale = VERIFIED_ON_SALE): Tier {
+  return onSale && l.tier === 'verified' && l.verifiedUntil && day(l.verifiedUntil) >= day(today) ? 'verified' : 'basic';
 }
 
 export function completeness(l: ListingData): number {
@@ -35,11 +35,11 @@ export const regionUrl = (r: string) => `/${site.hub}/${r}/`;
 export const cityUrl = (r: string, c: string) => `/${site.hub}/${r}/${c}/`;
 
 /** id is "{region}/{city}/{slug}" (the file path). */
-export function enrich(id: string, data: ListingData, today: Date): Listing {
+export function enrich(id: string, data: ListingData, today: Date, onSale = VERIFIED_ON_SALE): Listing {
   const [regionSlug, citySlug, fileSlug] = id.split('/');
   if (!regionSlug || !citySlug || !fileSlug) throw new Error(`Listing ${id} must live at {region}/{city}/{slug}.json`);
   if (fileSlug !== data.slug) throw new Error(`Listing ${id}: slug "${data.slug}" must match its file name`);
-  const tier = effectiveTier(data, today);
+  const tier = effectiveTier(data, today, onSale);
   const base: ListingData =
     tier === 'verified' ? data : { ...data, description: undefined, bookingUrl: undefined };
   return {

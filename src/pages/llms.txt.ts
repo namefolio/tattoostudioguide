@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { site } from '../../site.config';
-import { aboutListings, price } from '../lib/copy';
+import { aboutListings, onSale, price } from '../lib/copy';
 import { loadAll } from '../lib/data';
 import { regionsIndexMd } from '../lib/markdown';
 
@@ -17,7 +17,7 @@ Details come from each ${site.entity.one}'s own website and social pages, or fro
 
 ## Basic and Verified
 
-${aboutListings.join('\n\n')} Verified costs ${price}. Paying never changes the facts shown.
+${aboutListings.join('\n\n')} ${onSale ? `Verified costs ${price}. Paying never changes the facts shown.` : 'Verified is coming soon and not on sale yet.'}
 
 ## Locations
 

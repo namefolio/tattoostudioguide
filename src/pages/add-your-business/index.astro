@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { site } from '../../../site.config';
-import { price } from '../../lib/copy';
+import { onSale, price } from '../../lib/copy';
 import { DAYS } from '../../lib/types';
 import { DAY_LABELS } from '../../lib/core';
 
@@ -9,7 +9,7 @@ import { DAY_LABELS } from '../../lib/core';
 // so this page ships no JavaScript of its own.
 const e = site.entity;
 ---
-<Base title={`Add or update a ${e.one} listing | ${site.name}`} description={`Send a new ${e.one} or a correction. Basic listings are free; Verified is ${price}.`} path="/add-your-business/" crumbs={[{ name: 'Home', url: '/' }, { name: 'Add or update a listing', url: '/add-your-business/' }]}>
+<Base title={`Add or update a ${e.one} listing | ${site.name}`} description={`Send a new ${e.one} or a correction. Basic listings are free; Verified is ${onSale ? price : 'coming soon'}.`} path="/add-your-business/" crumbs={[{ name: 'Home', url: '/' }, { name: 'Add or update a listing', url: '/add-your-business/' }]}>
   <script slot="head" src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <header class="page-head">
     <span class="kicker">For {site.ui.many}</span>
@@ -25,7 +25,11 @@ const e = site.entity;
       <legend>Choose a listing</legend>
       <div class="tier-cards">
         <label class="tier-card"><input type="radio" name="tier" value="basic" checked /><strong>Basic (free)<span>Anyone can send a new {e.one} or a correction.</span></strong></label>
-        <label class="tier-card"><input type="radio" name="tier" value="verified" /><strong>Verified ({price})<span>Owners and staff only. We check the {site.credential.name} first.</span></strong></label>
+        {onSale ? (
+          <label class="tier-card"><input type="radio" name="tier" value="verified" /><strong>Verified ({price})<span>Owners and staff only. We check the {site.credential.name} first.</span></strong></label>
+        ) : (
+          <p class="tier-card is-soon"><strong>Verified (coming soon)<span>A paid plan with a {site.credential.name} check. Not on sale yet.</span></strong></p>
+        )}
       </div>
     </fieldset>
 
