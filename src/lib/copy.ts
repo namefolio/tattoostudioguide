@@ -1,8 +1,12 @@
 // Tier copy built from site.config.ts. This is the only place Verified wording is written.
-import { PLACEHOLDERS, site } from '../../site.config';
+// While VERIFIED_ON_SALE is false, Verified is "Coming soon": no price and no way to pay.
+import { PLACEHOLDERS, site, VERIFIED_ON_SALE } from '../../site.config';
 
 const e = site.entity;
-export const price = PLACEHOLDERS.verifiedPrice;
+export const onSale = VERIFIED_ON_SALE;
+export const soonLabel = 'Coming soon';
+/** The Verified price, or "Coming soon" while it is not on sale. */
+export const price = onSale ? PLACEHOLDERS.verifiedPrice : soonLabel;
 export const payLink = PLACEHOLDERS.verifiedPaymentLink;
 export const payIsMailto = payLink.startsWith('mailto:');
 export const payLabel = payIsMailto ? 'Email us to pay' : 'Pay now';
@@ -26,9 +30,13 @@ export const credentialCheck = `we check the ${site.credential.name} with ${site
 export const disclosure = 'Verified listings are paid, checked and shown first.';
 export const disclosureLinkText = 'Listing plans';
 
-export const footerLine = `${site.name} is an independent directory. Basic listings are free. Verified listings are paid, ${site.credential.checked}, labeled and shown first. No ratings, reviews or referral fees.`;
+export const footerLine = onSale
+  ? `${site.name} is an independent directory. Basic listings are free. Verified listings are paid, ${site.credential.checked}, labeled and shown first. No ratings, reviews or referral fees.`
+  : `${site.name} is an independent directory. Listings are free. A paid Verified plan is coming soon. No ratings, reviews or referral fees.`;
 
-export const plansIntro = `Every ${e.one} can have a free Basic listing. Verified is paid: ${credentialCheck}, then label the listing Verified and show it first in its city and category lists. Verified is never a rating, and payment never changes the facts we publish.`;
+export const plansIntro = onSale
+  ? `Every ${e.one} can have a free Basic listing. Verified is paid: ${credentialCheck}, then label the listing Verified and show it first in its city and category lists. Verified is never a rating, and payment never changes the facts we publish.`
+  : `Every ${e.one} can have a free Basic listing, and that stays free. Verified is a paid plan that is coming soon: ${credentialCheck}, then label the listing Verified and show it first in its city and category lists. It is not on sale yet. Verified will never be a rating, and payment will never change the facts we publish.`;
 
 export const basicBullets = [
   `Core facts: address, phone, website, hours`,
@@ -52,28 +60,42 @@ export const howToSteps = [
   `The listing gets the Verified label and moves above Basic listings. We recheck it at renewal, and it returns to Basic if not renewed.`,
 ];
 
-export const plansFaqs = [
+/** Shown on Listing plans instead of the how-to steps while Verified is not on sale. */
+export const soonText = `Verified is not on sale yet, so there is nothing to pay. Add your ${e.one} with a free Basic listing now. It stays free when Verified opens.`;
+
+export const plansFaqs = onSale ? [
   { q: 'Is a Basic listing really free?', a: `Yes. We never hide a correct Basic listing because a nearby ${e.one} paid.` },
   { q: 'Does paying change what you publish?', a: 'No. It buys the Verified label, the check and a place above Basic listings. It never buys a rating, a review or changed facts.' },
   { q: 'How are listings ordered?', a: 'Verified first, then Basic. Within each, the most complete listings come first, then A to Z.' },
   { q: 'How much does Verified cost?', a: `${price}.` },
+] : [
+  { q: 'Is a Basic listing really free?', a: `Yes. Basic is free now and stays free when Verified opens. We will never hide a correct Basic listing because a nearby ${e.one} paid.` },
+  { q: 'When can I get Verified?', a: 'Verified is coming soon. It is not on sale yet, so there is nothing to pay today.' },
+  { q: 'Will paying change what you publish?', a: 'No. Verified will buy the label, the check and a place above Basic listings. It will never buy a rating, a review or changed facts.' },
+  { q: 'How are listings ordered?', a: 'The most complete listings come first, then A to Z.' },
 ];
 
-export const aboutListings = [
-  `Basic listings are free. Their details come from public sources (the ${e.one}’s own website and social pages) or from a submission, and each shows the date it was last updated. Nobody at the ${e.one} has confirmed a Basic listing with us.`,
-  `Verified listings are paid. Before we label a listing Verified, ${credentialCheck}. Verified listings are shown first, with a one-line note saying so wherever that happens. The label lapses back to Basic if it is not renewed.`,
-];
+const aboutBasic = `Basic listings are free. Their details come from public sources (the ${e.one}’s own website and social pages) or from a submission, and each shows the date it was last updated. Nobody at the ${e.one} has confirmed a Basic listing with us.`;
+export const aboutListings = onSale
+  ? [aboutBasic, `Verified listings are paid. Before we label a listing Verified, ${credentialCheck}. Verified listings are shown first, with a one-line note saying so wherever that happens. The label lapses back to Basic if it is not renewed.`]
+  : [aboutBasic, `Verified, a paid plan, is coming soon. Before we label a listing Verified, ${credentialCheck}. Until it opens, every listing is Basic and nobody can pay for placement.`];
 
 /** Home "Why" points. Each restates a policy already on About and Listing plans; no new claims. */
 export const whyPoints = [
-  { title: 'Independent', text: `Not owned by any ${e.one}, and no referral fees. The only thing a ${e.one} can pay for is Verified.` },
-  { title: 'Transparent', text: `Verified means one thing: we checked the ${site.credential.name} and confirmed the details with the owner. It is paid, labeled, and never a rating.` },
+  onSale
+    ? { title: 'Independent', text: `Not owned by any ${e.one}, and no referral fees. The only thing a ${e.one} can pay for is Verified.` }
+    : { title: 'Independent', text: `Not owned by any ${e.one}, and no referral fees. Listings are free, and nobody can pay for placement.` },
+  onSale
+    ? { title: 'Transparent', text: `Verified means one thing: we checked the ${site.credential.name} and confirmed the details with the owner. It is paid, labeled, and never a rating.` }
+    : { title: 'Transparent', text: `Verified, coming soon, will mean one thing: we checked the ${site.credential.name} and confirmed the details with the owner. It will be paid, labeled, and never a rating.` },
   { title: 'No ratings', text: `No stars, reviews or rankings. Each listing shows the facts the ${e.one} publishes, and nothing is estimated.` },
   { title: 'Fresh information', text: 'Every listing shows the date it was last checked. Unknown details are left out, never guessed.' },
 ];
 
 export const ownerTitle = `Own a ${site.ui.one}?`;
-export const ownerText = `Add your ${site.ui.one} or send a correction for free. Want the Verified label? It is ${price}: ${credentialCheck}.`;
+export const ownerText = onSale
+  ? `Add your ${site.ui.one} or send a correction for free. Want the Verified label? It is ${price}: ${credentialCheck}.`
+  : `Add your ${site.ui.one} or send a correction for free. A paid Verified plan is coming soon.`;
 
 /** One line under the Verified mark on a listing page. */
 export const verifiedLine = `We checked the ${site.credential.name} and confirmed these details with the owner. Verified listings are paid and shown first; it is not a rating.`;

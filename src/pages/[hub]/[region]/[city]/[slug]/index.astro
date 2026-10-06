@@ -11,7 +11,7 @@ import { DAY_LABELS, factRows, fmtDate, isoDate, mapsUrl, type City, type Region
 import { termPages } from '../../../../../lib/data';
 import { initials, primaryLabel, primaryTerms, termHref } from '../../../../../lib/discovery';
 import { photos } from '../../../../../lib/images';
-import { verifiedLine } from '../../../../../lib/copy';
+import { onSale, verifiedLine } from '../../../../../lib/copy';
 import { DAYS, type Faq, type Listing } from '../../../../../lib/types';
 
 export const getStaticPaths = listingPaths;
@@ -127,7 +127,7 @@ const tel = l.phone ? `tel:${l.phone.replace(/[^+\d]/g, '')}` : undefined;
           )}
           <p class="small muted">Source: {l.source}</p>
           <p class="small"><a href={update}>Report incorrect information</a></p>
-          {!verified && <p class="small">Is this your {u.one}? <a href={`${update}&tier=verified`}>Claim it or get Verified</a></p>}
+          {!verified && <p class="small">Is this your {u.one}? {onSale ? <a href={`${update}&tier=verified`}>Claim it or get Verified</a> : <a href={update}>Claim it free</a>}</p>}
         </section>
       </aside>
     </div>

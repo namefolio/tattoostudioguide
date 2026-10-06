@@ -35,7 +35,7 @@ One-time dashboard steps:
 1. **Custom domain:** Worker > Settings > Domains & Routes > add the apex and `www`.
 2. **Email Routing:** enable it on the zone and verify `hello@namefolio.co` as a destination. The `send_email` binding only delivers to verified addresses; the sender `submissions@tattoostudioguide.com` must be on the zone.
 3. **Turnstile:** create a widget for the domain; put the site key in `wrangler.jsonc` (`TURNSTILE_SITE_KEY`) and run `npx wrangler secret put TURNSTILE_SECRET`. Without the secret the form fails closed.
-4. **Payment:** Verified is invoiced by email (`mailto:hello@namefolio.co`); if you switch to a Stripe Payment Link, set its success URL to `/listing-plans/`.
+4. **Payment:** the site is freemium. Listings are free, and Verified shows as "Coming soon" with no price while `VERIFIED_ON_SALE` in `site.config.ts` is `false` (every listing renders as Basic). To start selling, set it to `true`: Verified is then invoiced by email (`mailto:hello@namefolio.co`) at `verifiedPrice`; if you switch to a Stripe Payment Link, set its success URL to `/listing-plans/`.
 5. **AI Crawl Control:** make sure AI crawlers are allowed; optionally enable Markdown for Agents.
 
 ## Start the next domain from this repo

@@ -336,6 +336,7 @@ textarea { min-height: 7rem; }
 .tier-card input { width: 1.3rem; height: 1.3rem; margin-top: 0.2rem; accent-color: var(--ink); flex: none; }
 .tier-card span { display: block; font-weight: 400; color: var(--muted); }
 .tier-card strong { color: var(--ink); }
+.tier-card.is-soon { border-style: dashed; background: var(--surface); cursor: default; }
 details.more-details { border: var(--border-strong); border-radius: var(--radius); padding: 0 1.25rem; margin-bottom: 1.5rem; background: var(--surface); }
 details.more-details fieldset { border: 0; border-top: var(--border); border-radius: 0; padding: 1rem 0; margin: 0; }
 details.more-details > summary { font-weight: var(--ui-weight); min-height: 52px; display: flex; align-items: center; cursor: pointer; }

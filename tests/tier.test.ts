@@ -13,8 +13,8 @@ const data = (over: Partial<ListingData>): ListingData => ({
 
 describe('Verified expiry', () => {
   it('keeps Verified through the last paid day and drops to Basic after', () => {
-    expect(effectiveTier({ tier: 'verified', verifiedUntil: new Date('2026-09-28') }, today)).toBe('verified');
-    expect(effectiveTier({ tier: 'verified', verifiedUntil: new Date('2026-09-27') }, today)).toBe('basic');
+    expect(effectiveTier({ tier: 'verified', verifiedUntil: new Date('2026-09-28') }, today, true)).toBe('verified');
+    expect(effectiveTier({ tier: 'verified', verifiedUntil: new Date('2026-09-27') }, today, true)).toBe('basic');
   });
 
   it('renders an expired Verified listing as Basic: no badge, no owner fields, not sorted first', async () => {
@@ -28,9 +28,18 @@ describe('Verified expiry', () => {
     expect(html).not.toContain('Verified');
     expect(html).not.toContain('is-verified');
 
-    const current = enrich('texas/austin/current', data({ name: 'Zed Shop', slug: 'current', tier: 'verified', verifiedUntil: new Date('2027-01-01') }), today);
+    const current = enrich('texas/austin/current', data({ name: 'Zed Shop', slug: 'current', tier: 'verified', verifiedUntil: new Date('2027-01-01') }), today, true);
     expect(await container.renderToString(ListingCard, { props: { listing: current } })).toContain('>Verified<');
     const complete = enrich('texas/austin/aaa', data({ name: 'Aaa Shop', slug: 'aaa', phone: '1' }), today);
     expect(sortListings([expired, complete, current]).map((l) => l.slug)).toEqual(['current', 'aaa', 'test-shop']);
+  });
+
+  it('renders every listing as Basic while Verified is coming soon', async () => {
+    expect(effectiveTier({ tier: 'verified', verifiedUntil: new Date('2027-01-01') }, today, false)).toBe('basic');
+    const paid = enrich('texas/austin/paid', data({ slug: 'paid', tier: 'verified', verifiedUntil: new Date('2027-01-01'), bookingUrl: 'https://book.example/' }), today, false);
+    expect(paid.effectiveTier).toBe('basic');
+    expect(paid.bookingUrl).toBeUndefined();
+    const container = await AstroContainer.create();
+    expect(await container.renderToString(ListingCard, { props: { listing: paid } })).not.toContain('Verified');
   });
 });
